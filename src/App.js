@@ -8,28 +8,39 @@ function App() {
   const [tasks, setTasks] = useState([])
   const [editMode, setEditMode] = useState(false)
   const [id, setId] = useState("")
+  const [error, setError] = useState(null)
 
-const addTask = (e) => {
-  e.preventDefault()
-  if (isEmpty(task)){
-    console.log("Task empty")
-    return
+  const validForm = () => {
+    let isValid = true
+    setError(null)  
+    if (isEmpty(task)){
+      setError("Debes ingresar una tarea")
+      isValid = false
+    }
+    return isValid
   }
 
-  const newTask = {
-    id: shortid.generate(),
-    name: task
-  }
+  const addTask = (e) => {
+    e.preventDefault()
+    
+    if (!validForm()) {
+      return
+    }
+
+    const newTask = {
+      id: shortid.generate(),
+      name: task
+    }
   
-  setTasks([...tasks, newTask])
+    setTasks([...tasks, newTask])
 
-  setTask("")
+    setTask("")
 }
 
 const saveTask = (e) => {
   e.preventDefault()
-  if (isEmpty(task)){
-    console.log("Task empty")
+  
+  if (!validForm()) {
     return
   }
 
@@ -60,7 +71,7 @@ const editTask = (theTask) => {
           <h4 className="text-center">Lista de Tareas</h4>
           {
             size(tasks) === 0 ? (
-              <h5 className="text-center">Aún no hay tareas programadas</h5>
+              <li className="list-group-item">Aún no hay tareas programadas</li>
             ) : (
               <ul className="list-group">
             {
@@ -91,6 +102,9 @@ const editTask = (theTask) => {
             { editMode ? "Modificar tarea" : "Agregar tarea" }
           </h4>
           <form onSubmit={ editMode ? saveTask : addTask }>
+            {
+              error && <span className="text-danger">{error}</span>
+            }
             <input
               type="text"
               className="form-control mb-2"
@@ -98,6 +112,7 @@ const editTask = (theTask) => {
               onChange={(text) => setTask(text.target.value)} 
               value={task}         
             />
+            
             <button className= { editMode ? "btn btn-warning btn-block" : "btn btn-dark btn-block" }
                     type="submit"
                     >
